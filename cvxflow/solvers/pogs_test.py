@@ -59,6 +59,50 @@ class LassoTest(POGSTest):
     def testLasso(self):
         self.verify([[1.,-10],[1.,10.],[1.,0.]], [[2.],[2.],[2.]], 1,
                     [[1.6666666], [0]])
+    def testLassoLarge(self):
+        with self.test_session() as sess:
+            #A0 = [[1.,-10],[1.,10.],[1.,0.]]
+            #b0 = [[2.],[2.],[2.]]
+            #lam0 = 1
+            from numpy import abs, float32, float64, max, sqrt
+            from numpy.random import randn
+            m=100
+            n=100
+            # random matrix A
+            A0=float32(randn(m,n))
+
+            # true x vector, ~20% zeros
+            x_true=(randn(n)/sqrt(n))*float32(randn(n)<0.8)
+
+            # b= A*x_true + v (noise)
+            b0=A0.dot(x_true)+0.5*randn(m)
+            b0 = np.reshape(b0, (-1,1))
+
+            # lambda
+            lam0 = max(abs(A0.T.dot(b0)))
+
+            dtype = tf.float32
+            A1 = tf.convert_to_tensor(A0, dtype=dtype)
+            m, n = A1.get_shape().as_list()
+            b = tf.convert_to_tensor(b0, dtype=dtype)
+            lam = tf.convert_to_tensor(lam0, dtype=dtype)
+            I = tf.eye(m, dtype=dtype)
+
+            def A(x):
+                return tf.matmul(A1, x)
+            def AT(y):
+                return tf.matmul(A1, y, transpose_a=True)
+
+            solver = pogs.POGS(
+                prox_f=prox.LeastSquares(A=I, b=b, n=m, dtype=dtype),
+                prox_g=prox.AbsoluteValue(scale=lam),
+                A=A,
+                AT=AT,
+                shape=((n, 1), (m, 1)),
+                dtype=dtype)
+
+            state = solver.solve()
+            sess.run(state)
 
 
 class OrthogonalLassoTest(POGSTest):
