@@ -9,7 +9,7 @@ setup(
     packages = find_packages(),
     install_requires=[
         "cvxpy>=0.4.8",
-        "tensorflow>=1.0.0",
+        "tensorflow-gpu>=1.0.0",
     ],
     test_suite = "cvxflow",
 )
