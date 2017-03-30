@@ -60,7 +60,7 @@ def lasso_conv(n):
     x0 = np.array(sp.rand(n, 1, 0.1).todense()).ravel()
     b = np.convolve(c, x0) + 1e-2*np.random.randn(2*n-1)
     lam = 0.2*np.max(np.abs(np.convolve(b, c, "valid")))
-    print lam
+    print(lam)
 
     x = cvx.Variable(n)
     # f = cvx.sum_squares(cvx.conv(c, x) - b) + lam*cvx.norm1(x)
@@ -75,11 +75,11 @@ def run_scs(prob):
     t0 = time.time()
     prob.solve(solver=cvx.SCS, max_iters=10000,
                use_indirect=True, verbose=True, gpu=False)
-    print "cpu_solve_time: %.2f secs" % (time.time() - t0)
+    print("cpu_solve_time: %.2f secs" % (time.time() - t0))
 
     t0 = time.time()
     prob.get_problem_data(cvx.SCS)
-    print "get_problem_data_time: %.2f secs" % (time.time() - t0)
+    print("get_problem_data_time: %.2f secs" % (time.time() - t0))
 
 def run_tensorflow(prob):
     from cvxflow.problem import TensorProblem
@@ -87,7 +87,7 @@ def run_tensorflow(prob):
 
     t0 = time.time()
     t_prob = TensorProblem(prob)
-    print "problem_time:", time.time() - t0
+    print("problem_time:", time.time() - t0)
 
     # t0 = time.time()
     # objective = scs_tf.solve(t_prob, equil_iters=0, max_iters=2500, gpu=True)
@@ -96,8 +96,8 @@ def run_tensorflow(prob):
 
     t0 = time.time()
     objective = scs_tf.solve(t_prob, equil_iters=50, max_iters=2500, gpu=False)
-    print "cpu_solve_time: %.2f secs" % (time.time() - t0)
-    print "objective: %.2e" % objective
+    print("cpu_solve_time: %.2f secs" % (time.time() - t0))
+    print("objective: %.2e" % objective)
 
 if __name__ == "__main__":
     _, run_name, prob_name, n_str = sys.argv
@@ -105,8 +105,8 @@ if __name__ == "__main__":
     prob = globals()[prob_name]
     n = int(n_str)
 
-    print "running", run_name, prob_name, n
+    print("running", run_name, prob_name, n)
     np.random.seed(0)
     run(prob(n))
-    print
-    print
+    print()
+    print()
